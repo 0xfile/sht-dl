@@ -1,0 +1,37 @@
+name: Video Process
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+        with:
+          ref: main
+
+      - name: Install dependent
+        run: |
+          aria2c https://github.com/eugeneware/ffmpeg-static/releases/latest/download/linux-x64
+          chmod +x linux-x64
+          sudo mv linux-x64  /usr/local/bin/ffmpeg
+      
+      - name: Setup task
+        run: |
+            python3 setup.py
+
+      - name: Download video
+        run: |
+            aria2c --conf-path=./aria2.conf $(cat url.txt)
+      
+      - name: Process video
+        run: |
+          ffmpeg -y -hide_banner -loglevel error -i $(cat video.txt) -vcodec libx264 -preset slow -crf 23 -vf "scale=1280:-1" output.mp4
+          stat output.mp4
+          du -h output.mp4

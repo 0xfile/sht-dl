@@ -32,6 +32,5 @@ jobs:
       
       - name: Process video
         run: |
-          du -h $(cat video.txt)
-          ffmpeg -hide_banner -loglevel error -i $(cat video.txt) -c:v libx264 -vf scale=-2:720 -c:a copy output.mp4
+          ffmpeg -hide_banner -i $(cat video.txt) -c:v libx264 -vf scale=-2:720 -c:a copy output.mp4
           du -h output.mp4
